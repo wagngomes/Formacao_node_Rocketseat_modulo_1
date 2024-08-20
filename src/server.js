@@ -1,4 +1,5 @@
 import http from 'node:http'
+import { json } from './middlewares/json'
 
 const users = []
 
@@ -6,7 +7,9 @@ const server = http.createServer(async (req, res) => {
 
     const { method, url } = req
 
-    const buffers = []
+    await json(req, res)
+
+   /* const buffers = []
 
     for await (const chunk of req) {
         buffers.push(chunk)
@@ -21,6 +24,7 @@ const server = http.createServer(async (req, res) => {
         req.body = null
     }
 
+    */
 
 
     if (method === 'GET' && url === '/users'){
