@@ -1,7 +1,11 @@
 import http from 'node:http'
-import { json } from './middlewares/json'
+import { randomUUID } from 'node:crypto'
+import { json } from './middlewares/json.js'
+import { Database } from './database.js'
 
-const users = []
+//const users = [] usado antes da criação do arquivo de database
+
+const database = new Database()
 
 const server = http.createServer(async (req, res) => {
 
@@ -28,8 +32,10 @@ const server = http.createServer(async (req, res) => {
 
 
     if (method === 'GET' && url === '/users'){
+
+        const users = database.select('users')
         return res
-            .setHeader('Content-type', 'application/json')
+            //.setHeader('Content-type', 'application/json')
             .end(JSON.stringify(users))
     }
 
@@ -37,11 +43,12 @@ const server = http.createServer(async (req, res) => {
 
         const { nome, email } = req.body
 
-        users.push({
-            id: 1,
+        const user = {
+            id: randomUUID(),
             nome,
             email,
-        })
+        }
+       database.insert("users", user)
         return res.writeHead(201).end()
     }
     return res.writeHead(404).end('404 NOT FOUND')
