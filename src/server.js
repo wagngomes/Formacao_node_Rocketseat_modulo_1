@@ -1,11 +1,7 @@
 import http from 'node:http'
-import { randomUUID } from 'node:crypto'
 import { json } from './middlewares/json.js'
-import { Database } from './database.js'
+import { routes } from './routes.js'
 
-//const users = [] usado antes da criação do arquivo de database
-
-const database = new Database()
 
 const server = http.createServer(async (req, res) => {
 
@@ -13,44 +9,15 @@ const server = http.createServer(async (req, res) => {
 
     await json(req, res)
 
-   /* const buffers = []
+    const route = routes.find(route => {
+        return route.method === method && route.path === url
+    })
 
-    for await (const chunk of req) {
-        buffers.push(chunk)
+    if (route){
+        return route.handler(req, res)
     }
 
-    try{
 
-        req.body = JSON.parse(Buffer.concat(buffers).toString())
-
-    }catch{
-        
-        req.body = null
-    }
-
-    */
-
-
-    if (method === 'GET' && url === '/users'){
-
-        const users = database.select('users')
-        return res
-            //.setHeader('Content-type', 'application/json')
-            .end(JSON.stringify(users))
-    }
-
-    if (method === 'POST' && url === '/users'){
-
-        const { nome, email } = req.body
-
-        const user = {
-            id: randomUUID(),
-            nome,
-            email,
-        }
-       database.insert("users", user)
-        return res.writeHead(201).end()
-    }
     return res.writeHead(404).end('404 NOT FOUND')
 })
 
